@@ -98,7 +98,7 @@ export const HomePage: React.FC<HomePageProps> = ({
               <div className="relative mx-auto max-w-sm rounded-3xl overflow-hidden shadow-2xl border-4 border-white bg-white">
                 <div className="relative h-96 overflow-hidden">
                   <img
-                    src="https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=800&q=80"
+                    src="./images/models/model_ao_dai.jpg"
                     alt="Áo dài Gen Z"
                     className="w-full h-full object-cover object-center transform hover:scale-105 transition-transform duration-700"
                   />

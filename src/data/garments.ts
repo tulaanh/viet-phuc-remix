@@ -22,7 +22,7 @@ export const GARMENTS: Garment[] = [
       'Phối cùng túi tote canvas in đồ họa typographic chữ Nôm / Quốc ngữ'
     ],
     silhouette: 'flowing',
-    image: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=800&q=80',
+    image: './images/models/model_ao_dai.jpg',
     defaultColorId: 'do-son',
     historyDetails: {
       origin: 'Kế thừa từ áo ngũ thân lập lĩnh thời chúa Nguyễn Phúc Khoát (1744) và phong trào cách tân mỹ thuật Đông Dương thập niên 1930.',
@@ -52,7 +52,7 @@ export const GARMENTS: Garment[] = [
       'Kết hợp cùng chunky boots hoặc guốc sơn mài đế cao'
     ],
     silhouette: 'layered',
-    image: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=800&q=80',
+    image: './images/models/model_ao_tu_than.jpg',
     defaultColorId: 'xanh-cham',
     historyDetails: {
       origin: 'Trang phục phổ biến của người dân lao động và các liền chị vùng Kinh Bắc từ thời nhà Lý, Trần đến đầu thế kỷ 20.',
@@ -82,7 +82,7 @@ export const GARMENTS: Garment[] = [
       'Sử dụng phụ kiện kính râm đen gọng dày và vòng bạc xích bản nhỏ'
     ],
     silhouette: 'structured',
-    image: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=800&q=80',
+    image: './images/models/model_ao_ngu_than.jpg',
     defaultColorId: 'vang-hoang-cuc',
     historyDetails: {
       origin: 'Năm 1744, Chúa Nguyễn Phúc Khoát ban hành cải cách trang phục Đàng Trong, sau đó vua Minh Mạng chuẩn hóa thành quốc phục toàn cõi.',
@@ -112,7 +112,7 @@ export const GARMENTS: Garment[] = [
       'Tránh phối đồ quá hầm hố phá vỡ tính lễ nghi tôn nghiêm của trang phục'
     ],
     silhouette: 'regal',
-    image: 'https://images.unsplash.com/photo-1518895949257-7621c3c786d7?auto=format&fit=crop&w=800&q=80',
+    image: './images/models/model_nhat_binh.jpg',
     defaultColorId: 'do-son',
     historyDetails: {
       origin: 'Chế độ triều phục và thường phục hoàng tộc triều Nguyễn, phân định cấp bậc qua màu sắc (Hoàng hậu dùng vàng, Công chúa dùng đỏ, phi tần dùng lam/tím).',
@@ -142,7 +142,7 @@ export const GARMENTS: Garment[] = [
       'Đi cùng dép cói, sandal quai mảnh hoặc sneaker năng động'
     ],
     silhouette: 'casual',
-    image: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=800&q=80',
+    image: './images/models/model_ao_ba_ba.jpg',
     defaultColorId: 'den-tuyen',
     historyDetails: {
       origin: 'Xuất hiện vào thế kỷ 19 ở Nam Bộ, có thể chịu ảnh hưởng từ giao lưu thương mại văn hóa Mã Lai - Nam Đảo nhưng đã được Việt hóa triệt để.',
