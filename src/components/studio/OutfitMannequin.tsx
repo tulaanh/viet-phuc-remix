@@ -63,22 +63,39 @@ export const OutfitMannequin: React.FC<OutfitMannequinProps> = ({
 
   return (
     <div className="relative w-full h-[450px] sm:h-[510px] rounded-3xl overflow-hidden flex flex-col items-center justify-center border border-heritage-border/80 shadow-inner group transition-all duration-700 bg-stone-950">
-      {/* 1. SCENIC LANDMARK BACKGROUND */}
-      <div
-        className={`absolute inset-0 bg-gradient-to-b ${currentLandmark.bgGradient} transition-all duration-1000 opacity-90`}
-      />
+      {/* 1. SCENIC LANDMARK BACKGROUND (Real Architectural & Natural Landscape Image) */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <img
+          src={currentLandmark.imageUrl}
+          alt={currentLandmark.name}
+          className="w-full h-full object-cover object-center filter brightness-[0.72] contrast-[1.08] transition-all duration-1000 transform scale-105"
+        />
+
+        {/* Scenic Gradient Scrim for Contrast and Readability */}
+        <div
+          className={`absolute inset-0 bg-gradient-to-b ${currentLandmark.bgGradient} mix-blend-multiply opacity-75 transition-all duration-1000`}
+        />
+
+        {/* Ambient Color Wash */}
+        <div
+          className="absolute inset-0 opacity-25 mix-blend-color transition-colors duration-700"
+          style={{ backgroundColor: currentLandmark.ambientColor }}
+        />
+
+        {/* Soft Radial Vignette to focus eyes on the outfit */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_30%,rgba(0,0,0,0.7)_100%)]" />
+      </div>
 
       {/* Atmospheric Landmark Lighting & Texture */}
       <div className="absolute inset-0 pointer-events-none opacity-40">
         <div
           className="absolute w-80 h-80 rounded-full blur-3xl -top-10 -right-10 transition-colors duration-700"
-          style={{ backgroundColor: `${currentLandmark.ambientColor}35` }}
+          style={{ backgroundColor: `${currentLandmark.ambientColor}40` }}
         />
         <div
           className="absolute w-80 h-80 rounded-full blur-3xl -bottom-10 -left-10 transition-colors duration-700"
-          style={{ backgroundColor: `${color.hex}30` }}
+          style={{ backgroundColor: `${color.hex}35` }}
         />
-        <div className="absolute inset-0 subtle-grid opacity-20" />
       </div>
 
       {/* Top Floating Landmark Tag */}

@@ -84,6 +84,7 @@ export interface Landmark {
   name: string;
   location: string;
   description: string;
+  imageUrl: string;
   bgGradient: string;
   ambientColor: string;
   suitableGarments: string[];

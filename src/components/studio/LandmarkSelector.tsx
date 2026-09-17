@@ -25,31 +25,51 @@ export const LandmarkSelector: React.FC<LandmarkSelectorProps> = ({ selectedId, 
         </div>
       </div>
 
-      {/* Landmarks Horizontal Scroll Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+      {/* Landmarks Grid with Photo Thumbnails */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
         {LANDMARKS.map((lm) => {
           const isSelected = selectedId === lm.id;
           return (
             <button
               key={lm.id}
               onClick={() => onSelect(lm)}
-              className={`text-left p-2.5 rounded-xl border transition-all flex flex-col justify-between group relative overflow-hidden ${
+              className={`text-left rounded-xl border transition-all flex flex-col group relative overflow-hidden ${
                 isSelected
-                  ? 'bg-stone-900 text-white border-heritage-gold shadow-sm ring-1 ring-heritage-gold'
-                  : 'bg-stone-50 hover:bg-stone-100/90 text-stone-800 border-stone-200'
+                  ? 'bg-stone-900 text-white border-heritage-gold shadow-md ring-2 ring-heritage-gold/80'
+                  : 'bg-white hover:bg-stone-50 text-stone-800 border-stone-200/90 shadow-xs'
               }`}
             >
-              <div className="flex items-center justify-between w-full mb-1">
-                <span className="text-[10px] font-bold text-heritage-gold truncate">
+              {/* Photo Thumbnail Banner */}
+              <div className="relative w-full h-16 overflow-hidden bg-stone-900">
+                <img
+                  src={lm.imageUrl}
+                  alt={lm.name}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+
+                {/* Location Badge */}
+                <div className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-md bg-black/60 backdrop-blur-xs text-[9px] font-bold text-heritage-gold-light border border-white/20">
                   {lm.location}
-                </span>
-                {isSelected && <Check className="w-3 h-3 text-heritage-gold stroke-[3]" />}
+                </div>
+
+                {isSelected && (
+                  <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-heritage-gold text-stone-950 flex items-center justify-center shadow-xs">
+                    <Check className="w-3 h-3 stroke-[3]" />
+                  </div>
+                )}
               </div>
 
-              <h5 className="font-bold text-xs leading-snug line-clamp-1">{lm.name.split('—')[0]}</h5>
-              <p className={`text-[10px] line-clamp-1 mt-0.5 ${isSelected ? 'text-stone-300' : 'text-stone-500'}`}>
-                {lm.name.split('—')[1] || lm.description}
-              </p>
+              {/* Title & Short Description */}
+              <div className="p-2 min-w-0">
+                <h5 className="font-bold text-[11px] leading-tight truncate">
+                  {lm.name.split('—')[0].trim()}
+                </h5>
+                <p className={`text-[10px] truncate mt-0.5 ${isSelected ? 'text-stone-300' : 'text-stone-500'}`}>
+                  {lm.name.split('—')[1]?.trim() || lm.description}
+                </p>
+              </div>
             </button>
           );
         })}

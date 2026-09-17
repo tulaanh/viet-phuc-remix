@@ -13,6 +13,7 @@ interface ShareModalProps {
     styleName: string;
     occasionName: string;
     landmarkName?: string;
+    landmarkImageUrl?: string;
   };
 }
 
@@ -63,7 +64,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose, outfit 
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-5 right-5 p-2 rounded-full text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition-colors"
+          className="absolute top-5 right-5 p-2 rounded-full text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition-colors z-10"
           aria-label="Đóng"
         >
           <X className="w-5 h-5" />
@@ -82,14 +83,31 @@ export const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose, outfit 
           </p>
         </div>
 
-        {/* Look Card Mini Preview */}
-        <div className="p-4 rounded-2xl bg-gradient-to-br from-heritage-ivory to-amber-50 border border-amber-200/60 shadow-inner mb-5">
-          <div className="flex items-center gap-3">
+        {/* Look Card Postcard Preview */}
+        <div className="rounded-2xl border border-amber-200/80 shadow-md mb-5 overflow-hidden relative group">
+          {/* Background landmark photo if available */}
+          {outfit.landmarkImageUrl ? (
+            <div className="relative h-28 w-full overflow-hidden bg-stone-900">
+              <img
+                src={outfit.landmarkImageUrl}
+                alt={outfit.landmarkName || 'Landmark'}
+                className="w-full h-full object-cover object-center filter brightness-90 contrast-105 group-hover:scale-105 transition-transform duration-500"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/50 to-transparent" />
+              {outfit.landmarkName && (
+                <div className="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-[10px] font-bold text-heritage-gold border border-white/20">
+                  📍 {outfit.landmarkName}
+                </div>
+              )}
+            </div>
+          ) : null}
+
+          <div className="p-3.5 bg-gradient-to-br from-heritage-ivory to-amber-50/50 flex items-center gap-3">
             <div
-              className="w-12 h-16 rounded-xl overflow-hidden shrink-0 shadow-sm border border-stone-300 flex items-center justify-center text-white"
+              className="w-11 h-14 rounded-xl overflow-hidden shrink-0 shadow-sm border border-stone-300 flex items-center justify-center text-white relative"
               style={{ backgroundColor: outfit.color.hex }}
             >
-              <Sparkles className="w-6 h-6 text-amber-200" />
+              <Sparkles className="w-5 h-5 text-amber-200" />
             </div>
 
             <div className="flex-1 min-w-0">
@@ -104,11 +122,6 @@ export const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose, outfit 
                 <span className="inline-block w-2 h-2 rounded-full align-middle mx-1" style={{ backgroundColor: outfit.color.hex }} />
                 {outfit.color.vietnameseName}
               </p>
-              {outfit.landmarkName && (
-                <p className="text-[11px] text-emerald-800 font-semibold mt-1">
-                  📍 {outfit.landmarkName}
-                </p>
-              )}
             </div>
           </div>
         </div>

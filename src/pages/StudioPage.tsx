@@ -399,7 +399,8 @@ export const StudioPage: React.FC<StudioPageProps> = ({
           color: selectedColor,
           styleName: selectedStyle.name,
           occasionName: selectedOccasion.name,
-          landmarkName: selectedLandmark.name
+          landmarkName: selectedLandmark.name,
+          landmarkImageUrl: selectedLandmark.imageUrl
         }}
       />
     </div>
