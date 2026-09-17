@@ -57,7 +57,15 @@ export const StorageService = {
     try {
       const data = localStorage.getItem(STORAGE_KEYS.PROFILE);
       if (data) {
-        return JSON.parse(data);
+        const parsed = JSON.parse(data);
+        return {
+          ...DEFAULT_PROFILE,
+          ...parsed,
+          savedOutfits: Array.isArray(parsed.savedOutfits) ? parsed.savedOutfits : INITIAL_SAVED_OUTFITS,
+          history: Array.isArray(parsed.history) ? parsed.history : [],
+          compareList: Array.isArray(parsed.compareList) ? parsed.compareList : [],
+          customLookbooks: Array.isArray(parsed.customLookbooks) ? parsed.customLookbooks : DEFAULT_PROFILE.customLookbooks
+        };
       }
       // Initialize with default and initial saved outfits
       const initialProfile = {
@@ -68,7 +76,11 @@ export const StorageService = {
       this.saveProfile(initialProfile);
       return initialProfile;
     } catch {
-      return DEFAULT_PROFILE;
+      return {
+        ...DEFAULT_PROFILE,
+        savedOutfits: INITIAL_SAVED_OUTFITS,
+        compareList: [INITIAL_SAVED_OUTFITS[0], INITIAL_SAVED_OUTFITS[1]]
+      };
     }
   },
 
