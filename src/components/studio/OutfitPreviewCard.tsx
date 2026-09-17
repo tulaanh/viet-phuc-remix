@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
-import { Outfit, Garment, ColorOption, Occasion, StyleGenZ } from '../../types/outfit';
+import { Outfit, Garment, ColorOption, Occasion, StyleGenZ, Landmark } from '../../types/outfit';
 import { ACCESSORIES } from '../../data/accessories';
 import { OutfitMannequin } from './OutfitMannequin';
+import { LandmarkSelector } from './LandmarkSelector';
 import { ColorHarmonyCard } from './ColorHarmonyCard';
 import { CulturalWarningCard } from './CulturalWarningCard';
 import { CulturalContextDrawer } from './CulturalContextDrawer';
 import { calculateColorHarmony } from '../../services/colorHarmonyService';
 import { evaluateCulturalOutfit } from '../../services/culturalAdviceService';
-import { Bookmark, Share2, Scale, Check, Download } from 'lucide-react';
+import { Bookmark, Share2, Scale, Check, Download, MapPin } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { useToast } from '../../context/ToastContext';
 
@@ -18,6 +19,8 @@ interface OutfitPreviewCardProps {
   style: StyleGenZ;
   accessoryIds: string[];
   outfitName: string;
+  currentLandmark: Landmark;
+  onSelectLandmark: (landmark: Landmark) => void;
   onSaveOutfit: () => void;
   onAddToCompare: () => void;
   onOpenShare: () => void;
@@ -31,6 +34,8 @@ export const OutfitPreviewCard: React.FC<OutfitPreviewCardProps> = ({
   style,
   accessoryIds,
   outfitName,
+  currentLandmark,
+  onSelectLandmark,
   onSaveOutfit,
   onAddToCompare,
   onOpenShare,
@@ -89,8 +94,16 @@ export const OutfitPreviewCard: React.FC<OutfitPreviewCardProps> = ({
           color={color}
           style={style}
           accessoryIds={accessoryIds}
+          currentLandmark={currentLandmark}
+          onSelectLandmark={onSelectLandmark}
         />
       </div>
+
+      {/* Landmark Background Selector */}
+      <LandmarkSelector
+        selectedId={currentLandmark.id}
+        onSelect={onSelectLandmark}
+      />
 
       {/* Outfit Title & Meta Information */}
       <div className="space-y-1.5">
@@ -103,6 +116,10 @@ export const OutfitPreviewCard: React.FC<OutfitPreviewCardProps> = ({
           </span>
           <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-rose-100 text-rose-900 border border-rose-200">
             {style.name}
+          </span>
+          <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-900 border border-emerald-200 flex items-center gap-1">
+            <MapPin className="w-3 h-3" />
+            <span>{currentLandmark.name.split('—')[0].trim()}</span>
           </span>
         </div>
 

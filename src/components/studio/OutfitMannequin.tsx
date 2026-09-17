@@ -1,26 +1,49 @@
 import React, { useState, useEffect } from 'react';
-import { Garment, ColorOption, StyleGenZ } from '../../types/outfit';
-import { Sparkles, Eye, Image as ImageIcon } from 'lucide-react';
+import { Garment, ColorOption, StyleGenZ, Landmark } from '../../types/outfit';
+import { Sparkles, Eye, Image as ImageIcon, RotateCw, Play, Pause, ZoomIn, ZoomOut, MapPin, Maximize2 } from 'lucide-react';
 
 interface OutfitMannequinProps {
   garment: Garment;
   color: ColorOption;
   style: StyleGenZ;
   accessoryIds: string[];
+  currentLandmark: Landmark;
+  onSelectLandmark: (landmark: Landmark) => void;
 }
+
+export type TurntableAngle = 0 | 45 | 90 | 180;
 
 export const OutfitMannequin: React.FC<OutfitMannequinProps> = ({
   garment,
   color,
   style,
-  accessoryIds
+  accessoryIds,
+  currentLandmark,
+  onSelectLandmark
 }) => {
   const [viewMode, setViewMode] = useState<'avatar' | 'photo'>('avatar');
   const [photoError, setPhotoError] = useState(false);
+  const [angle, setAngle] = useState<TurntableAngle>(0);
+  const [isAutoRotating, setIsAutoRotating] = useState(false);
+  const [zoomLevel, setZoomLevel] = useState<number>(1);
 
+  // Reset photo error when garment changes
   useEffect(() => {
     setPhotoError(false);
   }, [garment.id]);
+
+  // Auto-rotate turntable interval
+  useEffect(() => {
+    if (!isAutoRotating || viewMode !== 'avatar') return;
+    const angles: TurntableAngle[] = [0, 45, 90, 180];
+    const timer = setInterval(() => {
+      setAngle((prev) => {
+        const nextIdx = (angles.indexOf(prev) + 1) % angles.length;
+        return angles[nextIdx];
+      });
+    }, 2800);
+    return () => clearInterval(timer);
+  }, [isAutoRotating, viewMode]);
 
   // Checks for specific accessories
   const hasKhanDong = accessoryIds.includes('khan-dong');
@@ -39,65 +62,69 @@ export const OutfitMannequin: React.FC<OutfitMannequinProps> = ({
   const hasNgocTrai = accessoryIds.includes('ngoc-trai-layer');
 
   return (
-    <div className="relative w-full h-[420px] sm:h-[480px] bg-gradient-to-b from-stone-100 via-stone-50 to-amber-50/40 rounded-2xl overflow-hidden flex flex-col items-center justify-center border border-heritage-border/60 shadow-inner group">
-      {/* Background Decorative Graphic */}
+    <div className="relative w-full h-[450px] sm:h-[510px] rounded-3xl overflow-hidden flex flex-col items-center justify-center border border-heritage-border/80 shadow-inner group transition-all duration-700 bg-stone-950">
+      {/* 1. SCENIC LANDMARK BACKGROUND */}
+      <div
+        className={`absolute inset-0 bg-gradient-to-b ${currentLandmark.bgGradient} transition-all duration-1000 opacity-90`}
+      />
+
+      {/* Atmospheric Landmark Lighting & Texture */}
       <div className="absolute inset-0 pointer-events-none opacity-40">
         <div
-          className="absolute w-72 h-72 rounded-full blur-3xl -top-10 -right-10 transition-colors duration-700"
-          style={{ backgroundColor: `${color.hex}25` }}
+          className="absolute w-80 h-80 rounded-full blur-3xl -top-10 -right-10 transition-colors duration-700"
+          style={{ backgroundColor: `${currentLandmark.ambientColor}35` }}
         />
         <div
-          className="absolute w-72 h-72 rounded-full blur-3xl -bottom-10 -left-10 transition-colors duration-700"
-          style={{ backgroundColor: `${color.secondaryHex}20` }}
+          className="absolute w-80 h-80 rounded-full blur-3xl -bottom-10 -left-10 transition-colors duration-700"
+          style={{ backgroundColor: `${color.hex}30` }}
         />
-        {/* Subtle grid pattern */}
-        <div className="absolute inset-0 subtle-grid opacity-30" />
+        <div className="absolute inset-0 subtle-grid opacity-20" />
+      </div>
+
+      {/* Top Floating Landmark Tag */}
+      <div className="absolute top-4 left-4 z-20 flex flex-col gap-1.5">
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-black/60 text-white backdrop-blur-md border border-white/20 shadow-sm">
+          <MapPin className="w-3.5 h-3.5 text-heritage-gold-light" />
+          <span className="truncate max-w-[170px] sm:max-w-xs">{currentLandmark.name}</span>
+        </span>
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-white/90 backdrop-blur-md text-stone-900 border border-stone-200 w-fit shadow-xs">
+          <span className="w-2 h-2 rounded-full" style={{ backgroundColor: color.hex }} />
+          <span>{color.vietnameseName}</span>
+        </span>
       </div>
 
       {/* View Switcher Button Pill */}
-      <div className="absolute top-4 right-4 z-20 flex bg-white/90 backdrop-blur-md rounded-full p-1 border border-stone-200 shadow-sm text-xs font-medium">
+      <div className="absolute top-4 right-4 z-20 flex bg-black/60 backdrop-blur-md rounded-full p-1 border border-white/20 shadow-sm text-xs font-medium">
         <button
           onClick={() => setViewMode('avatar')}
           className={`flex items-center gap-1.5 px-3 py-1 rounded-full transition-all ${
             viewMode === 'avatar'
-              ? 'bg-heritage-charcoal text-white shadow-sm'
-              : 'text-stone-600 hover:text-stone-900'
+              ? 'bg-heritage-gold text-stone-950 font-bold shadow-sm'
+              : 'text-stone-300 hover:text-white'
           }`}
         >
           <Eye className="w-3.5 h-3.5" />
-          <span>Layered Silhouette</span>
+          <span>360° Mannequin</span>
         </button>
         <button
           onClick={() => setViewMode('photo')}
           className={`flex items-center gap-1.5 px-3 py-1 rounded-full transition-all ${
             viewMode === 'photo'
-              ? 'bg-heritage-charcoal text-white shadow-sm'
-              : 'text-stone-600 hover:text-stone-900'
+              ? 'bg-heritage-gold text-stone-950 font-bold shadow-sm'
+              : 'text-stone-300 hover:text-white'
           }`}
         >
           <ImageIcon className="w-3.5 h-3.5" />
-          <span>Ảnh Mẫu</span>
+          <span>Ảnh Mẫu AI</span>
         </button>
       </div>
 
-      {/* Style badge floating tag */}
-      <div className="absolute top-4 left-4 z-20 flex flex-col gap-1.5">
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/90 backdrop-blur-md border border-heritage-border/80 text-heritage-charcoal shadow-sm">
-          <span className="w-2 h-2 rounded-full" style={{ backgroundColor: color.hex }} />
-          {color.vietnameseName}
-        </span>
-        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-heritage-red/10 text-heritage-red border border-heritage-red/20 w-fit backdrop-blur-sm">
-          <Sparkles className="w-3 h-3" />
-          {style.name}
-        </span>
-      </div>
-
-      {/* MODE 1: Interactive Layered SVG Fashion Silhouette */}
+      {/* MODE 1: Interactive Layered SVG Turntable Silhouette */}
       {viewMode === 'avatar' ? (
         <div className="relative w-full h-full flex items-center justify-center p-4">
           <svg
             viewBox="0 0 320 440"
-            className="h-full w-auto max-h-[390px] drop-shadow-xl transition-all duration-500"
+            className="h-full w-auto max-h-[390px] drop-shadow-2xl transition-all duration-500 ease-out"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
           >
@@ -111,7 +138,7 @@ export const OutfitMannequin: React.FC<OutfitMannequinProps> = ({
               {/* Silk reflection shimmer */}
               <linearGradient id="silkShimmer" x1="0" y1="0" x2="1" y2="0">
                 <stop offset="0%" stopColor="#ffffff" stopOpacity="0.1" />
-                <stop offset="50%" stopColor="#ffffff" stopOpacity="0.35" />
+                <stop offset="50%" stopColor="#ffffff" stopOpacity="0.4" />
                 <stop offset="100%" stopColor="#ffffff" stopOpacity="0.05" />
               </linearGradient>
 
@@ -123,368 +150,380 @@ export const OutfitMannequin: React.FC<OutfitMannequinProps> = ({
               </linearGradient>
             </defs>
 
-            {/* Mannequin Base Shadow */}
-            <ellipse cx="160" cy="416" rx="65" ry="8" fill="#1A1C20" fillOpacity="0.12" />
+            {/* Mannequin Base Ground Shadow */}
+            <ellipse cx="160" cy="416" rx="68" ry="8" fill="#000000" fillOpacity="0.45" />
 
-            {/* --- LEGS / FOOTWEAR LAYER --- */}
-            {/* Trousers under garment */}
-            <path
-              d="M145 280 L142 385 Q142 390 148 390 L154 390 L157 280 Z"
-              fill={garment.id === 'ao-ba-ba' ? '#1F2937' : '#F4EFE6'}
-              stroke="#E2D8C7"
-              strokeWidth="0.8"
-            />
-            <path
-              d="M163 280 L166 390 L172 390 Q178 390 178 385 L175 280 Z"
-              fill={garment.id === 'ao-ba-ba' ? '#1F2937' : '#F4EFE6'}
-              stroke="#E2D8C7"
-              strokeWidth="0.8"
-            />
+            {/* ======================================================== */}
+            {/* ANGLE 0°: CHÍNH DIỆN (FRONT VIEW)                       */}
+            {/* ======================================================== */}
+            {angle === 0 && (
+              <g id="angle-front">
+                {/* Trousers */}
+                <path d="M145 280 L142 385 Q142 390 148 390 L154 390 L157 280 Z" fill={garment.id === 'ao-ba-ba' ? '#1F2937' : '#F4EFE6'} stroke="#E2D8C7" strokeWidth="0.8" />
+                <path d="M163 280 L166 390 L172 390 Q178 390 178 385 L175 280 Z" fill={garment.id === 'ao-ba-ba' ? '#1F2937' : '#F4EFE6'} stroke="#E2D8C7" strokeWidth="0.8" />
 
-            {/* Shoes logic */}
-            {hasSneaker ? (
-              /* Chunky white sneakers with dynamic accent */
-              <g id="sneakers">
-                {/* Left Shoe */}
-                <rect x="133" y="386" width="22" height="18" rx="5" fill="#FFFFFF" stroke="#D1D5DB" strokeWidth="1.5" />
-                <path d="M131 398 L157 398 L157 404 L131 404 Z" fill="#F3F4F6" stroke="#9CA3AF" strokeWidth="1" />
-                <path d="M136 390 L146 390" stroke={color.hex} strokeWidth="2" strokeLinecap="round" />
-                <circle cx="138" cy="394" r="1.5" fill="#6B7280" />
-                {/* Right Shoe */}
-                <rect x="165" y="386" width="22" height="18" rx="5" fill="#FFFFFF" stroke="#D1D5DB" strokeWidth="1.5" />
-                <path d="M163 398 L189 398 L189 404 L163 404 Z" fill="#F3F4F6" stroke="#9CA3AF" strokeWidth="1" />
-                <path d="M174 390 L184 390" stroke={color.hex} strokeWidth="2" strokeLinecap="round" />
-                <circle cx="182" cy="394" r="1.5" fill="#6B7280" />
-              </g>
-            ) : hasBoots ? (
-              /* High black fashion boots */
-              <g id="boots">
-                <path d="M138 355 L138 402 L155 402 L155 355 Z" fill="#18181B" />
-                <rect x="135" y="398" width="22" height="6" rx="2" fill="#09090B" />
-                <path d="M165 355 L165 402 L182 402 L182 355 Z" fill="#18181B" />
-                <rect x="163" y="398" width="22" height="6" rx="2" fill="#09090B" />
-              </g>
-            ) : hasGuocMoc ? (
-              /* Traditional wooden clogs (Guốc mộc) */
-              <g id="guoc-moc">
-                <path d="M137 396 L154 396 L153 402 L138 402 Z" fill="#9A6E20" />
-                <path d="M139 392 Q145 388 152 392" stroke={color.hex} strokeWidth="2.5" fill="none" />
-                <path d="M166 396 L183 396 L182 402 L167 402 Z" fill="#9A6E20" />
-                <path d="M168 392 Q174 388 181 392" stroke={color.hex} strokeWidth="2.5" fill="none" />
-              </g>
-            ) : (
-              /* Minimal modern leather loafers */
-              <g id="minimal-shoes">
-                <ellipse cx="145" cy="398" rx="9" ry="4" fill="#292524" />
-                <ellipse cx="175" cy="398" rx="9" ry="4" fill="#292524" />
-              </g>
-            )}
+                {/* Footwear */}
+                {hasSneaker ? (
+                  <g id="sneakers-front">
+                    <rect x="133" y="386" width="22" height="18" rx="5" fill="#FFFFFF" stroke="#D1D5DB" strokeWidth="1.5" />
+                    <path d="M131 398 L157 398 L157 404 L131 404 Z" fill="#F3F4F6" stroke="#9CA3AF" strokeWidth="1" />
+                    <path d="M136 390 L146 390" stroke={color.hex} strokeWidth="2" strokeLinecap="round" />
+                    <rect x="165" y="386" width="22" height="18" rx="5" fill="#FFFFFF" stroke="#D1D5DB" strokeWidth="1.5" />
+                    <path d="M163 398 L189 398 L189 404 L163 404 Z" fill="#F3F4F6" stroke="#9CA3AF" strokeWidth="1" />
+                    <path d="M174 390 L184 390" stroke={color.hex} strokeWidth="2" strokeLinecap="round" />
+                  </g>
+                ) : hasBoots ? (
+                  <g id="boots-front">
+                    <path d="M138 355 L138 402 L155 402 L155 355 Z" fill="#18181B" />
+                    <rect x="135" y="398" width="22" height="6" rx="2" fill="#09090B" />
+                    <path d="M165 355 L165 402 L182 402 L182 355 Z" fill="#18181B" />
+                    <rect x="163" y="398" width="22" height="6" rx="2" fill="#09090B" />
+                  </g>
+                ) : hasGuocMoc ? (
+                  <g id="guoc-moc-front">
+                    <path d="M137 396 L154 396 L153 402 L138 402 Z" fill="#9A6E20" />
+                    <path d="M139 392 Q145 388 152 392" stroke={color.hex} strokeWidth="2.5" fill="none" />
+                    <path d="M166 396 L183 396 L182 402 L167 402 Z" fill="#9A6E20" />
+                    <path d="M168 392 Q174 388 181 392" stroke={color.hex} strokeWidth="2.5" fill="none" />
+                  </g>
+                ) : (
+                  <g id="minimal-shoes-front">
+                    <ellipse cx="145" cy="398" rx="9" ry="4" fill="#292524" />
+                    <ellipse cx="175" cy="398" rx="9" ry="4" fill="#292524" />
+                  </g>
+                )}
 
-            {/* --- GARMENT SILHOUETTES --- */}
+                {/* Garments Front */}
+                {garment.id === 'ao-dai' && (
+                  <g>
+                    <path d="M132 180 L124 370 Q160 380 196 370 L188 180 Z" fill={color.hex} opacity="0.85" />
+                    <path d="M136 125 L128 365 Q160 375 192 365 L184 125 Q160 140 136 125 Z" fill="url(#garmentGrad)" stroke="#FFFFFF" strokeWidth="0.5" strokeOpacity="0.4" />
+                    <path d="M142 135 L136 360 Q150 366 160 365 L158 135 Z" fill="url(#silkShimmer)" />
+                  </g>
+                )}
 
-            {/* 1. ÁO DÀI */}
-            {garment.id === 'ao-dai' && (
-              <g id="garment-ao-dai">
-                {/* Back flap shadow */}
-                <path
-                  d="M132 180 L124 370 Q160 380 196 370 L188 180 Z"
-                  fill={color.hex}
-                  opacity="0.85"
-                />
-                {/* Front flowing flap */}
-                <path
-                  d="M136 125 L128 365 Q160 375 192 365 L184 125 Q160 140 136 125 Z"
-                  fill="url(#garmentGrad)"
-                  stroke="#FFFFFF"
-                  strokeWidth="0.5"
-                  strokeOpacity="0.4"
-                />
-                {/* Silk sheen reflection */}
-                <path
-                  d="M142 135 L136 360 Q150 366 160 365 L158 135 Z"
-                  fill="url(#silkShimmer)"
-                />
-                {/* Side slits */}
-                <line x1="136" y1="180" x2="132" y2="280" stroke="#FFFFFF" strokeWidth="1" strokeOpacity="0.3" />
-                <line x1="184" y1="180" x2="188" y2="280" stroke="#FFFFFF" strokeWidth="1" strokeOpacity="0.3" />
-              </g>
-            )}
+                {garment.id === 'ao-tu-than' && (
+                  <g>
+                    <path d="M145 95 L175 95 L180 170 L140 170 Z" fill="#CA4F76" />
+                    <path d="M125 105 L110 360 L140 365 L145 105 Z" fill="url(#garmentGrad)" />
+                    <path d="M195 105 L210 360 L180 365 L175 105 Z" fill="url(#garmentGrad)" />
+                    <path d="M145 170 Q160 185 175 170 L170 240 Q160 250 150 240 Z" fill="#C59338" />
+                    <circle cx="160" cy="180" r="6" fill="#9B1D20" />
+                  </g>
+                )}
 
-            {/* 2. ÁO TỨ THÂN */}
-            {garment.id === 'ao-tu-than' && (
-              <g id="garment-ao-tu-than">
-                {/* Inner Yếm đào */}
-                <path d="M145 95 L175 95 L180 170 L140 170 Z" fill="#CA4F76" />
-                {/* Outer 4 flaps */}
-                <path d="M125 105 L110 360 L140 365 L145 105 Z" fill="url(#garmentGrad)" />
-                <path d="M195 105 L210 360 L180 365 L175 105 Z" fill="url(#garmentGrad)" />
-                {/* Front tied bow / Knot at belly */}
-                <path d="M145 170 Q160 185 175 170 L170 240 Q160 250 150 240 Z" fill="#C59338" />
-                <circle cx="160" cy="180" r="6" fill="#9B1D20" />
-                {/* Ribbon ties */}
-                <path d="M158 185 Q152 230 146 270" stroke="#CA4F76" strokeWidth="3" strokeLinecap="round" fill="none" />
-                <path d="M162 185 Q168 230 174 270" stroke="#1D6246" strokeWidth="3" strokeLinecap="round" fill="none" />
-              </g>
-            )}
+                {garment.id === 'ao-ngu-than' && (
+                  <g>
+                    <path d="M128 100 L118 340 Q160 350 202 340 L192 100 Q160 110 128 100 Z" fill="url(#garmentGrad)" stroke="#FFFFFF" strokeWidth="0.8" strokeOpacity="0.3" />
+                    <path d="M160 92 L185 125 L185 240 L160 345" stroke="#FFFFFF" strokeWidth="1.5" strokeOpacity="0.4" fill="none" />
+                    <circle cx="163" cy="95" r="2.5" fill="#DFB058" />
+                    <circle cx="172" cy="108" r="2.5" fill="#DFB058" />
+                    <circle cx="182" cy="122" r="2.5" fill="#DFB058" />
+                    <circle cx="184" cy="150" r="2.5" fill="#DFB058" />
+                    <circle cx="183" cy="180" r="2.5" fill="#DFB058" />
+                  </g>
+                )}
 
-            {/* 3. ÁO NGŨ THÂN */}
-            {garment.id === 'ao-ngu-than' && (
-              <g id="garment-ao-ngu-than">
-                {/* Main 5-panel silhouette: loose, structured */}
-                <path
-                  d="M128 100 L118 340 Q160 350 202 340 L192 100 Q160 110 128 100 Z"
-                  fill="url(#garmentGrad)"
-                  stroke="#FFFFFF"
-                  strokeWidth="0.8"
-                  strokeOpacity="0.3"
-                />
-                {/* Lap-linh right-closing flap */}
-                <path
-                  d="M160 92 L185 125 L185 240 L160 345"
-                  stroke="#FFFFFF"
-                  strokeWidth="1.5"
-                  strokeOpacity="0.4"
-                  fill="none"
-                />
-                {/* 5 Traditional buttons (Ngũ thường buttons) */}
-                <circle cx="163" cy="95" r="2.5" fill="#DFB058" />
-                <circle cx="172" cy="108" r="2.5" fill="#DFB058" />
-                <circle cx="182" cy="122" r="2.5" fill="#DFB058" />
-                <circle cx="184" cy="150" r="2.5" fill="#DFB058" />
-                <circle cx="183" cy="180" r="2.5" fill="#DFB058" />
-              </g>
-            )}
+                {garment.id === 'nhat-binh' && (
+                  <g>
+                    <path d="M120 100 L110 355 Q160 365 210 355 L200 100 Q160 112 120 100 Z" fill="url(#garmentGrad)" />
+                    <rect x="146" y="92" width="28" height="105" rx="3" fill="url(#goldTrim)" />
+                    <rect x="150" y="96" width="20" height="97" rx="2" fill="#9B1D20" />
+                    <line x1="160" y1="92" x2="160" y2="197" stroke="#DFB058" strokeWidth="1.5" />
+                  </g>
+                )}
 
-            {/* 4. ÁO NHẬT BÌNH */}
-            {garment.id === 'nhat-binh' && (
-              <g id="garment-nhat-binh">
-                {/* Main imperial robe */}
-                <path
-                  d="M120 100 L110 355 Q160 365 210 355 L200 100 Q160 112 120 100 Z"
-                  fill="url(#garmentGrad)"
-                />
-                {/* Signature Rectangular Collar (Đối Khâm) */}
-                <rect x="146" y="92" width="28" height="105" rx="3" fill="url(#goldTrim)" />
-                <rect x="150" y="96" width="20" height="97" rx="2" fill="#9B1D20" />
-                {/* Center opening line */}
-                <line x1="160" y1="92" x2="160" y2="197" stroke="#DFB058" strokeWidth="1.5" />
-                <circle cx="160" cy="140" r="3.5" fill="#F4EFE6" stroke="#C59338" strokeWidth="1" />
-                {/* Imperial 5-color sleeves trim */}
-                <path d="M102 210 L118 210 L118 225 L102 225 Z" fill="#CA4F76" />
-                <path d="M102 225 L118 225 L118 235 L102 235 Z" fill="#1D6246" />
-                <path d="M102 235 L118 235 L118 245 L102 245 Z" fill="#DFB058" />
-                <path d="M202 210 L218 210 L218 225 L202 225 Z" fill="#CA4F76" />
-                <path d="M202 225 L218 225 L218 235 L202 235 Z" fill="#1D6246" />
-                <path d="M202 235 L218 235 L218 245 L202 245 Z" fill="#DFB058" />
+                {garment.id === 'ao-ba-ba' && (
+                  <g>
+                    <path d="M130 98 L124 240 Q160 248 196 240 L190 98 Q160 108 130 98 Z" fill="url(#garmentGrad)" />
+                    <line x1="160" y1="108" x2="160" y2="240" stroke="#111827" strokeWidth="1" strokeOpacity="0.3" />
+                    <circle cx="160" cy="125" r="2.5" fill="#E5E7EB" />
+                    <circle cx="160" cy="148" r="2.5" fill="#E5E7EB" />
+                    <circle cx="160" cy="172" r="2.5" fill="#E5E7EB" />
+                    <circle cx="160" cy="196" r="2.5" fill="#E5E7EB" />
+                  </g>
+                )}
+
+                {/* Arms Front */}
+                <path d="M130 100 L104 205 Q110 215 118 208 L138 130 Z" fill={color.hex} />
+                <path d="M190 100 L216 205 Q210 215 202 208 L182 130 Z" fill={color.hex} />
+
+                {/* Head & Neck */}
+                <path d="M152 75 L152 98 L168 98 L168 75 Z" fill="#E7D8C9" />
+                <ellipse cx="160" cy="58" rx="19" ry="24" fill="#F1E4D6" />
+                <path d="M141 52 Q160 34 179 52 Q183 68 178 72 Q160 76 142 72 Q137 68 141 52 Z" fill="#18181B" />
+                <circle cx="160" cy="35" r="9" fill="#18181B" />
+
+                {/* Front Accessories */}
+                {hasKhanDong && (
+                  <g>
+                    <ellipse cx="160" cy="46" rx="23" ry="12" fill="#182747" stroke="#DFB058" strokeWidth="1" />
+                    <path d="M137 46 Q160 38 183 46" stroke="#DFB058" strokeWidth="1" fill="none" />
+                  </g>
+                )}
+                {hasNonQuaiThao && (
+                  <g>
+                    <ellipse cx="160" cy="32" rx="42" ry="10" fill="#EEDCC1" stroke="#C59338" strokeWidth="1.2" />
+                    <path d="M125 35 Q120 90 128 150" stroke="#CA4F76" strokeWidth="2" fill="none" />
+                    <path d="M195 35 Q200 90 192 150" stroke="#CA4F76" strokeWidth="2" fill="none" />
+                  </g>
+                )}
+                {hasKiengBac && <path d="M149 92 Q160 102 171 92" stroke="#E5E7EB" strokeWidth="3.5" strokeLinecap="round" fill="none" />}
+                {hasKinhY2K && (
+                  <g>
+                    <rect x="145" y="52" width="13" height="7" rx="3.5" fill="#111827" stroke="#38BDF8" strokeWidth="1" />
+                    <rect x="162" y="52" width="13" height="7" rx="3.5" fill="#111827" stroke="#38BDF8" strokeWidth="1" />
+                  </g>
+                )}
+                {hasTote && (
+                  <g>
+                    <rect x="204" y="230" width="28" height="34" rx="2" fill="#F3F4F6" stroke="#9CA3AF" strokeWidth="1" />
+                    <text x="210" y="248" fill="#9B1D20" fontSize="7" fontWeight="bold">VIỆT</text>
+                  </g>
+                )}
               </g>
             )}
 
-            {/* 5. ÁO BÀ BA */}
-            {garment.id === 'ao-ba-ba' && (
-              <g id="garment-ao-ba-ba">
-                {/* Short top ending at hip */}
-                <path
-                  d="M130 98 L124 240 Q160 248 196 240 L190 98 Q160 108 130 98 Z"
-                  fill="url(#garmentGrad)"
-                  stroke="#FFFFFF"
-                  strokeWidth="0.8"
-                  strokeOpacity="0.3"
-                />
-                {/* Side slits */}
-                <line x1="126" y1="210" x2="124" y2="240" stroke="#FFFFFF" strokeWidth="1.5" />
-                <line x1="194" y1="210" x2="196" y2="240" stroke="#FFFFFF" strokeWidth="1.5" />
-                {/* Center front button line */}
-                <line x1="160" y1="108" x2="160" y2="240" stroke="#111827" strokeWidth="1" strokeOpacity="0.3" />
-                <circle cx="160" cy="125" r="2.5" fill="#E5E7EB" />
-                <circle cx="160" cy="148" r="2.5" fill="#E5E7EB" />
-                <circle cx="160" cy="172" r="2.5" fill="#E5E7EB" />
-                <circle cx="160" cy="196" r="2.5" fill="#E5E7EB" />
-                {/* Front two pockets */}
-                <rect x="136" y="195" width="16" height="18" rx="2" fill="none" stroke="#FFFFFF" strokeOpacity="0.4" strokeWidth="1" />
-                <rect x="168" y="195" width="16" height="18" rx="2" fill="none" stroke="#FFFFFF" strokeOpacity="0.4" strokeWidth="1" />
+            {/* ======================================================== */}
+            {/* ANGLE 45°: GÓC NGHIÊNG (THREE-QUARTER VIEW)              */}
+            {/* ======================================================== */}
+            {angle === 45 && (
+              <g id="angle-quarter">
+                {/* Trousers 45 */}
+                <path d="M148 280 L140 385 Q140 390 146 390 L152 390 L156 280 Z" fill={garment.id === 'ao-ba-ba' ? '#1F2937' : '#F4EFE6'} />
+                <path d="M160 280 L168 390 L174 390 Q180 390 180 385 L170 280 Z" fill={garment.id === 'ao-ba-ba' ? '#1F2937' : '#F4EFE6'} />
+
+                {/* Footwear 45 */}
+                {hasSneaker ? (
+                  <g>
+                    <rect x="134" y="386" width="20" height="17" rx="5" fill="#FFFFFF" stroke="#9CA3AF" />
+                    <rect x="164" y="386" width="23" height="17" rx="5" fill="#FFFFFF" stroke="#9CA3AF" />
+                    <path d="M168 390 L178 390" stroke={color.hex} strokeWidth="2" />
+                  </g>
+                ) : (
+                  <g>
+                    <ellipse cx="144" cy="398" rx="8" ry="4" fill="#292524" />
+                    <ellipse cx="174" cy="398" rx="10" ry="4" fill="#292524" />
+                  </g>
+                )}
+
+                {/* Garment 45 silhouette */}
+                <path d="M136 100 L115 365 Q155 375 190 355 L182 100 Q155 110 136 100 Z" fill="url(#garmentGrad)" />
+                {/* Side slit preview */}
+                <path d="M170 170 L176 350" stroke="#FFFFFF" strokeWidth="1.5" strokeOpacity="0.4" />
+                <path d="M140 115 L132 360" stroke="#FFFFFF" strokeWidth="0.8" strokeOpacity="0.25" fill="none" />
+
+                {/* Arms 45 */}
+                <path d="M134 100 L118 205 Q125 215 132 208 L142 128 Z" fill={color.hex} />
+                <path d="M180 100 L212 195 Q206 205 198 200 L176 130 Z" fill={color.hex} />
+
+                {/* Head 45 */}
+                <path d="M152 75 L152 98 L168 98 L168 75 Z" fill="#E7D8C9" />
+                <ellipse cx="164" cy="58" rx="18" ry="24" fill="#F1E4D6" />
+                <path d="M148 50 Q168 34 184 54 Q186 68 180 72 Q164 76 148 68 Z" fill="#18181B" />
+                <circle cx="166" cy="36" r="8" fill="#18181B" />
+
+                {hasKhanDong && <ellipse cx="164" cy="46" rx="21" ry="11" fill="#182747" stroke="#DFB058" strokeWidth="1" />}
+                {hasKinhY2K && <rect x="156" y="52" width="18" height="7" rx="3.5" fill="#111827" stroke="#38BDF8" strokeWidth="1" />}
+                {hasTote && <rect x="200" y="215" width="26" height="32" rx="2" fill="#F3F4F6" stroke="#9CA3AF" />}
               </g>
             )}
 
-            {/* Sleeves (Arms) */}
-            <path
-              d="M130 100 L104 205 Q110 215 118 208 L138 130 Z"
-              fill={color.hex}
-            />
-            <path
-              d="M190 100 L216 205 Q210 215 202 208 L182 130 Z"
-              fill={color.hex}
-            />
+            {/* ======================================================== */}
+            {/* ANGLE 90°: GÓC SƯỜN BÊN (SIDE PROFILE VIEW)              */}
+            {/* ======================================================== */}
+            {angle === 90 && (
+              <g id="angle-side">
+                {/* Leg profile */}
+                <path d="M152 260 L148 385 Q148 390 156 390 L166 390 L164 260 Z" fill={garment.id === 'ao-ba-ba' ? '#1F2937' : '#F4EFE6'} />
 
-            {/* Layering: Blazer Oversize (if selected) */}
-            {hasBlazer && (
-              <g id="blazer-overlay">
-                <path
-                  d="M120 95 L95 240 L130 250 L140 140 Z"
-                  fill="#1F2937"
-                  opacity="0.9"
-                />
-                <path
-                  d="M200 95 L225 240 L190 250 L180 140 Z"
-                  fill="#1F2937"
-                  opacity="0.9"
-                />
-                {/* Lapel collar */}
-                <path d="M120 95 L140 160 L132 165 Z" fill="#374151" />
-                <path d="M200 95 L180 160 L188 165 Z" fill="#374151" />
+                {/* Shoe profile */}
+                {hasSneaker ? (
+                  <path d="M142 388 L174 388 L174 402 L142 402 Z" fill="#FFFFFF" stroke="#9CA3AF" strokeWidth="1" />
+                ) : hasBoots ? (
+                  <path d="M144 360 L144 402 L168 402 L168 360 Z" fill="#18181B" />
+                ) : (
+                  <ellipse cx="158" cy="398" rx="14" ry="5" fill="#292524" />
+                )}
+
+                {/* Front flap in profile */}
+                <path d="M152 95 L144 365 Q150 370 158 368 L158 175 Z" fill="url(#garmentGrad)" />
+                {/* Back flap in profile */}
+                <path d="M162 95 L162 175 L168 375 Q174 378 178 375 L170 95 Z" fill={color.hex} opacity="0.85" />
+                {/* Side Slit Opening Gap */}
+                <line x1="158" y1="165" x2="160" y2="368" stroke="#E2D8C7" strokeWidth="2" strokeDasharray="3 3" />
+
+                {/* Arm Profile */}
+                <path d="M155 100 L150 215 Q158 220 165 215 L168 105 Z" fill={color.hex} />
+
+                {/* Head in profile */}
+                <path d="M154 75 L154 96 L166 96 L166 75 Z" fill="#E7D8C9" />
+                <path d="M152 50 Q168 36 176 54 Q178 68 172 74 Q156 76 150 64 Z" fill="#F1E4D6" />
+                {/* Profile hair bun */}
+                <path d="M166 42 Q176 44 180 54 Q182 66 172 70 Z" fill="#18181B" />
+                <circle cx="178" cy="46" r="7" fill="#18181B" />
+
+                {hasKhanDong && <ellipse cx="162" cy="46" rx="14" ry="10" fill="#182747" stroke="#DFB058" strokeWidth="1" />}
+                {hasTramCai && <line x1="172" y1="36" x2="188" y2="28" stroke="#E5E7EB" strokeWidth="2.5" strokeLinecap="round" />}
+                {hasKinhY2K && <rect x="146" y="52" width="10" height="6" rx="3" fill="#111827" stroke="#38BDF8" />}
               </g>
             )}
 
-            {/* Mannequin Neck & Collar */}
-            <path d="M152 75 L152 98 L168 98 L168 75 Z" fill="#E7D8C9" />
+            {/* ======================================================== */}
+            {/* ANGLE 180°: PHÍA SAU TÀ ÁO (BACK VIEW)                   */}
+            {/* ======================================================== */}
+            {angle === 180 && (
+              <g id="angle-back">
+                {/* Trousers Back */}
+                <path d="M145 280 L142 385 Q142 390 148 390 L154 390 L157 280 Z" fill={garment.id === 'ao-ba-ba' ? '#1F2937' : '#F4EFE6'} />
+                <path d="M163 280 L166 390 L172 390 Q178 390 178 385 L175 280 Z" fill={garment.id === 'ao-ba-ba' ? '#1F2937' : '#F4EFE6'} />
 
-            {/* Traditional Stand Collar (Lập Lĩnh) */}
-            {garment.id !== 'ao-ba-ba' && (
-              <path
-                d="M148 88 Q160 92 172 88 L171 98 Q160 102 149 98 Z"
-                fill="url(#garmentGrad)"
-                stroke="#DFB058"
-                strokeWidth="0.8"
-              />
-            )}
+                {/* Footwear Back */}
+                {hasSneaker ? (
+                  <g>
+                    <rect x="133" y="388" width="22" height="16" rx="4" fill="#FFFFFF" stroke="#9CA3AF" />
+                    <rect x="165" y="388" width="22" height="16" rx="4" fill="#FFFFFF" stroke="#9CA3AF" />
+                  </g>
+                ) : (
+                  <g>
+                    <ellipse cx="145" cy="398" rx="8" ry="4" fill="#292524" />
+                    <ellipse cx="175" cy="398" rx="8" ry="4" fill="#292524" />
+                  </g>
+                )}
 
-            {/* Mannequin Head / Face Silhouette */}
-            <ellipse cx="160" cy="58" rx="19" ry="24" fill="#F1E4D6" />
+                {/* Back flap */}
+                <path d="M134 100 L122 368 Q160 380 198 368 L186 100 Q160 108 134 100 Z" fill="url(#garmentGrad)" />
+                {/* Central Spine Seam Line (Sống Áo - nét văn hóa quan trọng) */}
+                <line x1="160" y1="95" x2="160" y2="372" stroke="#FFFFFF" strokeWidth="1.5" strokeOpacity="0.45" strokeDasharray="4 2" />
 
-            {/* Hair bun / Sleek Hair */}
-            <path
-              d="M141 52 Q160 34 179 52 Q183 68 178 72 Q160 76 142 72 Q137 68 141 52 Z"
-              fill="#18181B"
-            />
-            {/* Top knot */}
-            <circle cx="160" cy="35" r="9" fill="#18181B" />
+                {/* Áo tứ thân back seam */}
+                {garment.id === 'ao-tu-than' && (
+                  <g>
+                    <path d="M146 170 Q160 185 174 170 L170 230 Q160 240 150 230 Z" fill="#C59338" />
+                  </g>
+                )}
 
-            {/* --- HEADWEAR ACCESSORIES --- */}
-            {hasKhanDong && (
-              /* Traditional Folded Turban (Khăn Đóng) */
-              <g id="khan-dong-accessory">
-                <ellipse cx="160" cy="46" rx="23" ry="12" fill="#182747" stroke="#DFB058" strokeWidth="1" />
-                <path d="M137 46 Q160 38 183 46" stroke="#2A3F6D" strokeWidth="2.5" fill="none" />
-                <path d="M138 43 Q160 35 182 43" stroke="#DFB058" strokeWidth="1" fill="none" />
-              </g>
-            )}
+                {/* Arms Back */}
+                <path d="M134 100 L106 205 Q112 215 120 208 L140 125 Z" fill={color.hex} />
+                <path d="M186 100 L214 205 Q208 215 200 208 L180 125 Z" fill={color.hex} />
 
-            {hasNonQuaiThao && (
-              /* Flat conical hat with silken ribbons (Nón Quai Thao) */
-              <g id="non-quai-thao-accessory">
-                <ellipse cx="160" cy="32" rx="42" ry="10" fill="#EEDCC1" stroke="#C59338" strokeWidth="1.2" />
-                <ellipse cx="160" cy="30" rx="40" ry="8" fill="#F9F4EB" />
-                {/* Ribbons hanging down */}
-                <path d="M125 35 Q120 90 128 150" stroke="#CA4F76" strokeWidth="2" fill="none" />
-                <path d="M195 35 Q200 90 192 150" stroke="#CA4F76" strokeWidth="2" fill="none" />
-              </g>
-            )}
+                {/* Head Back */}
+                <path d="M152 75 L152 98 L168 98 L168 75 Z" fill="#E7D8C9" />
+                <ellipse cx="160" cy="56" rx="19" ry="24" fill="#18181B" />
+                <circle cx="160" cy="46" r="12" fill="#18181B" />
 
-            {hasTramCai && (
-              /* Silver Hairpin (Trâm Cài Tóc) */
-              <g id="tram-cai-accessory">
-                <line x1="168" y1="26" x2="186" y2="18" stroke="#E5E7EB" strokeWidth="2.5" strokeLinecap="round" />
-                <circle cx="187" cy="17" r="4" fill="#CA4F76" stroke="#FFFFFF" strokeWidth="1" />
-              </g>
-            )}
-
-            {/* --- JEWELRY ACCESSORIES --- */}
-            {hasKiengBac && (
-              /* Silver Torque (Vòng Kiềng Bạc) */
-              <path
-                d="M149 92 Q160 102 171 92"
-                stroke="#E5E7EB"
-                strokeWidth="3.5"
-                strokeLinecap="round"
-                fill="none"
-              />
-            )}
-
-            {hasNgocTrai && (
-              /* Layered Pearls */
-              <g id="pearls">
-                <path d="M147 94 Q160 108 173 94" stroke="#FAF7F0" strokeWidth="2" strokeDasharray="3 3" fill="none" />
-                <path d="M144 98 Q160 116 176 98" stroke="#FAF7F0" strokeWidth="2" strokeDasharray="3 3" fill="none" />
-              </g>
-            )}
-
-            {/* --- EYEWEAR --- */}
-            {hasKinhY2K && (
-              /* Cyber Y2K Sunglasses */
-              <g id="cyber-glasses">
-                <rect x="145" y="52" width="13" height="7" rx="3.5" fill="#111827" stroke="#38BDF8" strokeWidth="1" />
-                <rect x="162" y="52" width="13" height="7" rx="3.5" fill="#111827" stroke="#38BDF8" strokeWidth="1" />
-                <line x1="158" y1="55" x2="162" y2="55" stroke="#38BDF8" strokeWidth="1" />
-              </g>
-            )}
-
-            {/* --- HANDHELD & BAG ACCESSORIES --- */}
-            {hasTuiCoi && (
-              /* Woven Straw Bag */
-              <g id="tui-coi">
-                <path d="M102 210 Q98 230 104 235 L96 235 Q90 230 96 210 Z" stroke="#9A6E20" strokeWidth="1.5" fill="none" />
-                <rect x="85" y="235" width="26" height="24" rx="4" fill="#D4B483" stroke="#9A6E20" strokeWidth="1" />
-                <line x1="85" y1="243" x2="111" y2="243" stroke="#B89758" strokeWidth="1" strokeDasharray="2 2" />
-                <line x1="85" y1="251" x2="111" y2="251" stroke="#B89758" strokeWidth="1" strokeDasharray="2 2" />
-              </g>
-            )}
-
-            {hasTote && (
-              /* Graphic Canvas Tote Bag */
-              <g id="tote-bag">
-                <path d="M210 205 Q218 225 212 230 L220 230 Q226 225 218 205 Z" stroke="#374151" strokeWidth="1.5" fill="none" />
-                <rect x="204" y="230" width="28" height="34" rx="2" fill="#F3F4F6" stroke="#9CA3AF" strokeWidth="1" />
-                <rect x="210" y="240" width="16" height="14" rx="1" fill="#9B1D20" />
-                <text x="212" y="250" fill="#FFFFFF" fontSize="6" fontWeight="bold">VIỆT</text>
-              </g>
-            )}
-
-            {hasQuatLua && (
-              /* Silk Fan (Quạt Xếp) */
-              <g id="quat-lua">
-                <path d="M208 200 L232 178 Q240 195 228 210 Z" fill="#CA4F76" stroke="#DFB058" strokeWidth="1" />
-                <line x1="208" y1="200" x2="232" y2="178" stroke="#9A6E20" strokeWidth="1.5" />
-                <line x1="208" y1="200" x2="228" y2="210" stroke="#9A6E20" strokeWidth="1.5" />
-              </g>
-            )}
-
-            {hasKhanRan && (
-              /* Southern Scarf (Khăn Rằn Nam Bộ) */
-              <g id="khan-ran">
-                <path d="M142 98 Q140 160 138 210" stroke="#1F2937" strokeWidth="4" strokeDasharray="2 2" fill="none" />
-                <path d="M178 98 Q180 160 182 210" stroke="#1F2937" strokeWidth="4" strokeDasharray="2 2" fill="none" />
+                {hasKhanDong && (
+                  <g>
+                    <ellipse cx="160" cy="48" rx="22" ry="11" fill="#182747" stroke="#DFB058" strokeWidth="1" />
+                    <line x1="140" y1="48" x2="180" y2="48" stroke="#DFB058" strokeWidth="1.5" />
+                  </g>
+                )}
+                {hasTramCai && (
+                  <g>
+                    <line x1="150" y1="42" x2="175" y2="34" stroke="#E5E7EB" strokeWidth="2.5" />
+                    <circle cx="176" cy="34" r="3.5" fill="#CA4F76" />
+                  </g>
+                )}
               </g>
             )}
           </svg>
         </div>
       ) : (
-        /* MODE 2: High-Fashion Lookbook Photography with graceful fallback */
-        <div className="relative w-full h-full">
+        /* MODE 2: High-Fashion Lookbook Photography with interactive Zoom & Inspection */
+        <div className="relative w-full h-full overflow-hidden flex items-center justify-center">
           {!photoError ? (
             <img
               src={garment.image}
               alt={garment.name}
               onError={() => setPhotoError(true)}
-              className="w-full h-full object-cover object-center filter saturate-105 transition-all duration-500"
+              style={{ transform: `scale(${zoomLevel})` }}
+              className="w-full h-full object-cover object-center filter saturate-105 transition-transform duration-300 select-none"
             />
           ) : (
-            <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center bg-stone-100">
-              <div className="w-16 h-16 rounded-full bg-amber-100 flex items-center justify-center text-amber-800 mb-3">
-                <Sparkles className="w-8 h-8" />
-              </div>
-              <h4 className="font-serif text-lg font-bold text-stone-800">{garment.name}</h4>
-              <p className="text-xs text-stone-500 mt-1 max-w-xs">{garment.subtitle}</p>
+            <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center bg-stone-900 text-stone-200">
+              <Sparkles className="w-8 h-8 text-heritage-gold mb-2" />
+              <h4 className="font-serif text-lg font-bold">{garment.name}</h4>
+              <p className="text-xs text-stone-400 mt-1 max-w-xs">{garment.subtitle}</p>
             </div>
           )}
-          {/* Subtle gradient vignette */}
-          <div className="absolute inset-0 bg-gradient-to-t from-stone-950/70 via-transparent to-stone-950/20 pointer-events-none" />
-          <div className="absolute bottom-4 left-4 right-4 text-white z-10">
-            <p className="text-xs uppercase tracking-widest text-amber-300 font-semibold">
-              Lookbook Editorial
-            </p>
-            <p className="font-serif text-lg font-bold drop-shadow-md">
-              {garment.name} × {style.name}
-            </p>
+
+          {/* Photo Zoom Controls Bar */}
+          <div className="absolute top-16 right-4 z-20 flex flex-col gap-1.5 bg-black/60 backdrop-blur-md rounded-2xl p-1.5 border border-white/20 shadow-md">
+            <button
+              onClick={() => setZoomLevel((z) => Math.min(2, z + 0.25))}
+              className="p-1.5 rounded-xl text-stone-300 hover:text-white hover:bg-white/10 transition-colors"
+              title="Phóng to"
+            >
+              <ZoomIn className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setZoomLevel((z) => Math.max(1, z - 0.25))}
+              className="p-1.5 rounded-xl text-stone-300 hover:text-white hover:bg-white/10 transition-colors"
+              title="Thu nhỏ"
+            >
+              <ZoomOut className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setZoomLevel(1)}
+              className="p-1.5 rounded-xl text-stone-300 hover:text-white hover:bg-white/10 transition-colors text-[10px] font-bold"
+              title="Khôi phục 1x"
+            >
+              1x
+            </button>
           </div>
+
+          <div className="absolute bottom-4 left-4 right-4 text-white z-10 pointer-events-none">
+            <span className="text-[10px] uppercase font-bold tracking-widest text-amber-300">
+              Lookbook Editorial • {currentLandmark.name}
+            </span>
+            <h4 className="font-serif text-lg font-bold drop-shadow-md">
+              {garment.name} × {style.name}
+            </h4>
+          </div>
+        </div>
+      )}
+
+      {/* 360° TURNTABLE CONTROLS FLOATING BAR (Only shown in Avatar mode) */}
+      {viewMode === 'avatar' && (
+        <div className="absolute bottom-3.5 left-4 right-4 z-20 flex items-center justify-between bg-black/75 backdrop-blur-xl rounded-2xl p-1.5 border border-white/20 shadow-xl">
+          {/* Angle quick-select buttons */}
+          <div className="flex items-center gap-1">
+            {[
+              { val: 0, label: '0° Chính diện' },
+              { val: 45, label: '45° Nghiêng' },
+              { val: 90, label: '90° Sườn' },
+              { val: 180, label: '180° Sau' }
+            ].map((item) => (
+              <button
+                key={item.val}
+                onClick={() => {
+                  setAngle(item.val as TurntableAngle);
+                  setIsAutoRotating(false);
+                }}
+                className={`px-2.5 py-1 rounded-xl text-[11px] font-bold transition-all ${
+                  angle === item.val
+                    ? 'bg-heritage-gold text-stone-950 shadow-sm'
+                    : 'text-stone-300 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Auto rotate toggle */}
+          <button
+            onClick={() => setIsAutoRotating(!isAutoRotating)}
+            className={`flex items-center gap-1 px-2.5 py-1 rounded-xl text-[11px] font-bold transition-all ${
+              isAutoRotating
+                ? 'bg-heritage-red text-white shadow-red-glow animate-pulse'
+                : 'text-stone-300 hover:text-white hover:bg-white/10'
+            }`}
+            title="Tự động xoay 360 độ"
+          >
+            {isAutoRotating ? <Pause className="w-3.5 h-3.5" /> : <RotateCw className="w-3.5 h-3.5" />}
+            <span className="hidden sm:inline">{isAutoRotating ? 'Dừng' : 'Xoay 360°'}</span>
+          </button>
         </div>
       )}
     </div>

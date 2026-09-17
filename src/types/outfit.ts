@@ -72,10 +72,21 @@ export interface Outfit {
   colorId: string;
   accessoryIds: string[];
   styleId: string;
+  landmarkId?: string;
   notes?: string;
   createdAt: string;
   isFavorite?: boolean;
   likesCount?: number;
+}
+
+export interface Landmark {
+  id: string;
+  name: string;
+  location: string;
+  description: string;
+  bgGradient: string;
+  ambientColor: string;
+  suitableGarments: string[];
 }
 
 export interface ColorHarmonyReport {

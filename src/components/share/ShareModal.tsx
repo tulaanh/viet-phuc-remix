@@ -12,6 +12,7 @@ interface ShareModalProps {
     color: ColorOption;
     styleName: string;
     occasionName: string;
+    landmarkName?: string;
   };
 }
 
@@ -103,6 +104,11 @@ export const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose, outfit 
                 <span className="inline-block w-2 h-2 rounded-full align-middle mx-1" style={{ backgroundColor: outfit.color.hex }} />
                 {outfit.color.vietnameseName}
               </p>
+              {outfit.landmarkName && (
+                <p className="text-[11px] text-emerald-800 font-semibold mt-1">
+                  📍 {outfit.landmarkName}
+                </p>
+              )}
             </div>
           </div>
         </div>

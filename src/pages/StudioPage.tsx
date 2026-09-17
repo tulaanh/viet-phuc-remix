@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Garment, Occasion, ColorOption, StyleGenZ, Outfit } from '../types/outfit';
+import { Garment, Occasion, ColorOption, StyleGenZ, Outfit, Landmark } from '../types/outfit';
 import { GARMENTS } from '../data/garments';
 import { OCCASIONS } from '../data/occasions';
 import { COLORS } from '../data/colors';
 import { ACCESSORIES } from '../data/accessories';
 import { STYLES } from '../data/styles';
+import { LANDMARKS } from '../data/landmarks';
 import { StepOccasion } from '../components/studio/StepOccasion';
 import { StepGarment } from '../components/studio/StepGarment';
 import { StepColor } from '../components/studio/StepColor';
@@ -56,6 +57,12 @@ export const StudioPage: React.FC<StudioPageProps> = ({
   const [selectedStyle, setSelectedStyle] = useState<StyleGenZ>(
     STYLES.find((s) => s.id === initialStyleId) || STYLES[1] // Default Modern Gen Z
   );
+  const [selectedLandmark, setSelectedLandmark] = useState<Landmark>(() => {
+    if (initialGarmentId === 'nhat-binh') return LANDMARKS.find((l) => l.id === 'hue-palace') || LANDMARKS[0];
+    if (initialGarmentId === 'ao-tu-than') return LANDMARKS.find((l) => l.id === 'trang-an') || LANDMARKS[0];
+    if (initialGarmentId === 'ao-ba-ba') return LANDMARKS.find((l) => l.id === 'saigon-retro') || LANDMARKS[0];
+    return LANDMARKS[1] || LANDMARKS[0]; // Hoi An default
+  });
 
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [savedOutfitIds, setSavedOutfitIds] = useState<string[]>(() => {
@@ -95,12 +102,30 @@ export const StudioPage: React.FC<StudioPageProps> = ({
     });
   };
 
+  // Helper to suggest landmark based on garment
+  const suggestLandmarkForGarment = (garmentId: string) => {
+    switch (garmentId) {
+      case 'nhat-binh':
+        return LANDMARKS.find((l) => l.id === 'hue-palace') || LANDMARKS[0];
+      case 'ao-tu-than':
+        return LANDMARKS.find((l) => l.id === 'trang-an') || LANDMARKS[0];
+      case 'ao-ba-ba':
+        return LANDMARKS.find((l) => l.id === 'saigon-retro') || LANDMARKS[0];
+      case 'ao-ngu-than':
+        return LANDMARKS.find((l) => l.id === 'hanoi-old-quarter') || LANDMARKS[0];
+      case 'ao-dai':
+      default:
+        return LANDMARKS.find((l) => l.id === 'hoi-an') || LANDMARKS[0];
+    }
+  };
+
   // Randomize styling (Surprise Me / AI Stylist)
   const handleRandomize = () => {
     const randomOccasion = OCCASIONS[Math.floor(Math.random() * OCCASIONS.length)];
     const randomGarment = GARMENTS[Math.floor(Math.random() * GARMENTS.length)];
     const randomColor = COLORS[Math.floor(Math.random() * COLORS.length)];
     const randomStyle = STYLES[Math.floor(Math.random() * STYLES.length)];
+    const randomLandmark = LANDMARKS[Math.floor(Math.random() * LANDMARKS.length)];
 
     // Pick 2-3 random accessories
     const shuffledAcc = [...ACCESSORIES].sort(() => 0.5 - Math.random());
@@ -110,12 +135,13 @@ export const StudioPage: React.FC<StudioPageProps> = ({
     setSelectedGarment(randomGarment);
     setSelectedColor(randomColor);
     setSelectedStyle(randomStyle);
+    setSelectedLandmark(randomLandmark);
     setSelectedAccessoryIds(randomAccessories);
 
     showToast({
       type: 'info',
       title: 'Stylist AI gợi ý Look mới!',
-      message: `${randomGarment.name} ${randomColor.name} theo phong cách ${randomStyle.name}`
+      message: `${randomGarment.name} ${randomColor.name} tại ${randomLandmark.name}`
     });
   };
 
@@ -129,6 +155,7 @@ export const StudioPage: React.FC<StudioPageProps> = ({
       colorId: selectedColor.id,
       accessoryIds: selectedAccessoryIds,
       styleId: selectedStyle.id,
+      landmarkId: selectedLandmark.id,
       createdAt: new Date().toISOString(),
       isFavorite: true
     };
@@ -153,6 +180,7 @@ export const StudioPage: React.FC<StudioPageProps> = ({
       colorId: selectedColor.id,
       accessoryIds: selectedAccessoryIds,
       styleId: selectedStyle.id,
+      landmarkId: selectedLandmark.id,
       createdAt: new Date().toISOString()
     };
 
@@ -275,6 +303,7 @@ export const StudioPage: React.FC<StudioPageProps> = ({
                   selectedId={selectedGarment.id}
                   onSelect={(g) => {
                     setSelectedGarment(g);
+                    setSelectedLandmark(suggestLandmarkForGarment(g.id));
                   }}
                 />
               )}
@@ -350,6 +379,8 @@ export const StudioPage: React.FC<StudioPageProps> = ({
             style={selectedStyle}
             accessoryIds={selectedAccessoryIds}
             outfitName={outfitName}
+            currentLandmark={selectedLandmark}
+            onSelectLandmark={setSelectedLandmark}
             onSaveOutfit={handleSaveOutfit}
             onAddToCompare={handleAddToCompare}
             onOpenShare={() => setIsShareModalOpen(true)}
@@ -367,7 +398,8 @@ export const StudioPage: React.FC<StudioPageProps> = ({
           garment: selectedGarment,
           color: selectedColor,
           styleName: selectedStyle.name,
-          occasionName: selectedOccasion.name
+          occasionName: selectedOccasion.name,
+          landmarkName: selectedLandmark.name
         }}
       />
     </div>
