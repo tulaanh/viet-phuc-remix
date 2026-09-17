@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Garment, ColorOption, StyleGenZ } from '../../types/outfit';
 import { Sparkles, Eye, Image as ImageIcon } from 'lucide-react';
 
@@ -17,6 +17,10 @@ export const OutfitMannequin: React.FC<OutfitMannequinProps> = ({
 }) => {
   const [viewMode, setViewMode] = useState<'avatar' | 'photo'>('avatar');
   const [photoError, setPhotoError] = useState(false);
+
+  useEffect(() => {
+    setPhotoError(false);
+  }, [garment.id]);
 
   // Checks for specific accessories
   const hasKhanDong = accessoryIds.includes('khan-dong');

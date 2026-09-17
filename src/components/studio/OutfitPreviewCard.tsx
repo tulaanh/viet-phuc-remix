@@ -9,6 +9,7 @@ import { calculateColorHarmony } from '../../services/colorHarmonyService';
 import { evaluateCulturalOutfit } from '../../services/culturalAdviceService';
 import { Bookmark, Share2, Scale, Check, Download } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { useToast } from '../../context/ToastContext';
 
 interface OutfitPreviewCardProps {
   garment: Garment;
@@ -36,6 +37,7 @@ export const OutfitPreviewCard: React.FC<OutfitPreviewCardProps> = ({
   isSaved = false
 }) => {
   const [downloading, setDownloading] = useState(false);
+  const { showToast } = useToast();
 
   // Calculate live harmony and cultural evaluation
   const harmony = calculateColorHarmony(color.id, style.id, accessoryIds);
@@ -57,7 +59,11 @@ export const OutfitPreviewCard: React.FC<OutfitPreviewCardProps> = ({
     setDownloading(true);
     setTimeout(() => {
       setDownloading(false);
-      alert('Đã tạo bản in Look Card độ phân giải cao! Bạn có thể lưu lại vào bộ sưu tập ảnh.');
+      showToast({
+        type: 'success',
+        title: 'Đã xuất Look Card PNG!',
+        message: 'Thẻ phối đồ phong cách thời trang đã sẵn sàng để lưu trữ hoặc chia sẻ.'
+      });
     }, 1200);
   };
 
